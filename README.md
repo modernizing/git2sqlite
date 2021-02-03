@@ -11,10 +11,13 @@ Architecture
 
 ## Performance logs
 
-| Project Name  | Project Commits | JSON   | BinCode |  Direct SQLite  |
-|---------------|-----------------|--------|---------|----------|
-| https://github.com/nitayneeman/schematics-utilities | 129 | 441 ms |     |   165ms   |
-|
+### Without Changes
+
+| Project Name     | Project Commits | Time   |
+|------------------|-----------------|--------|
+| Nginx            | 6805            | 32s    |
+| Redis            | 10009           | 67s    |
+| Spring Framework | 22133           | 706s   |
 
 
 License
