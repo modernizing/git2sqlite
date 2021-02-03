@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-use std::fs;
 use std::path::Path;
 
 use crate::git_command::get_commit_message;
@@ -10,13 +9,6 @@ use crate::git_log_parser::GitMessageParser;
 pub mod git_command;
 pub mod git_log_parser;
 pub mod coco_commit;
-
-#[derive(Debug)]
-struct Person {
-    id: i32,
-    name: String,
-    data: Option<Vec<u8>>,
-}
 
 pub fn analysis(local_path: &Path) {
     let messages = get_commit_message(Some(format!("{}", local_path.display())));
@@ -28,7 +20,6 @@ fn main(){
 }
 
 fn process(local: &str) {
-    let _ = fs::remove_file(Path::new("commits.json"));
     analysis(Path::new(local));
 }
 
