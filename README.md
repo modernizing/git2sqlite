@@ -15,6 +15,7 @@ Architecture
 
 | Project Name     | Project Commits | Time   |
 |------------------|-----------------|--------|
+| Lombok           | 3127            | 8s    |
 | Nginx            | 6805            | 32s    |
 | Redis            | 10009           | 67s    |
 | Spring Framework | 22133           | 706s   |
