@@ -8,3 +8,10 @@ Architecture
 2. parse log by line to commit
 3. save commit to json file
 4. read json file and save to db
+
+## Performance logs
+
+| Project Name  | Project Commits | JSON   | BinCode |  Others  |
+|---------------|-----------------|--------|---------|----------|
+| https://github.com/nitayneeman/schematics-utilities | 129 | 441 ms |     |      |
+| 

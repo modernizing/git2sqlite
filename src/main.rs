@@ -29,12 +29,12 @@ pub fn analysis(local_path: &Path) {
 }
 
 fn main(){
-    process("/Users/fdhuang/consultant/devops/cocoj");
+    process(".");
 }
 
 fn process(local: &str) {
-    // let _ = fs::remove_file(Path::new("commits.json"));
-    // analysis(Path::new(local));
+    let _ = fs::remove_file(Path::new("commits.json"));
+    analysis(Path::new(local));
 
     let _ = fs::remove_file(Path::new("coco_git.db"));
 
@@ -121,6 +121,6 @@ mod test {
     #[test]
     #[ignore]
     pub fn should_parse_coco() {
-        process("/Users/fdhuang/consultant/devops/cocoj");
+        process("/Users/fdhuang/clone/schematics-utilities");
     }
 }
