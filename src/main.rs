@@ -6,6 +6,7 @@ use std::path::Path;
 use crate::git_command::get_commit_message;
 use crate::git_log_parser::GitMessageParser;
 use std::env;
+use std::time::{Instant};
 
 pub mod git_command;
 pub mod git_log_parser;
@@ -16,9 +17,20 @@ pub fn analysis(local_path: &Path) {
     GitMessageParser::parse(messages.as_str());
 }
 
-fn main(){
+fn main() {
     let args: Vec<String> = env::args().collect();
-    process(args[0].as_str());
+    let mut path = ".";
+    if args.len() > 1 {
+        path = args[1].as_str();
+    }
+
+    let expand_path = shellexpand::tilde(path);
+
+    let start = Instant::now();
+    println!("start process: {}", expand_path);
+    process(&*expand_path);
+
+    println!("finish process in {:?}s", start.elapsed().as_secs());
 }
 
 fn process(local: &str) {
