@@ -27,6 +27,13 @@ Architecture
 | Graal            | 49026           | 1425s  |                   |
 | Gradle           | 78711           | 4130s  |                   |
 
+## Todo
+
+Change to list all commits, and run git to split commits.
+
+ - 获取所有的提交 id
+ - 将提交 ID 分段，获取不同的 ID
+
 
 License
 ---
