@@ -18,6 +18,8 @@ Architecture
 | Nginx            | 6805            | 32s    |
 | Redis            | 10009           | 67s    |
 | Spring Framework | 22133           | 706s   |
+| Graal            | 49026           | 1425s  |
+| Gradle           | 78711           | 4130s  |
 
 
 License
