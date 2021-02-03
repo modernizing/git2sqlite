@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use regex::{Captures, Regex};
 use crate::coco_commit::{CocoCommit, FileChange};
+use std::fs::{OpenOptions, File};
+use std::io::prelude::*;
 
 lazy_static! {
     static ref COMMIT_INFO: Regex = Regex::new(
@@ -25,35 +27,45 @@ lazy_static! {
 }
 
 pub struct GitMessageParser {
+    count: i32,
     current_commit: CocoCommit,
     current_file_change: Vec<FileChange>,
-    commits: Vec<CocoCommit>,
     current_file_change_map: HashMap<String, FileChange>,
 }
 
 impl Default for GitMessageParser {
     fn default() -> Self {
         GitMessageParser {
+            count: 1,
             current_commit: Default::default(),
             current_file_change: vec![],
-            commits: vec![],
             current_file_change_map: Default::default(),
         }
     }
 }
 
 impl GitMessageParser {
-    pub fn parse(str: &str) -> Vec<CocoCommit> {
+    pub fn parse(str: &str) {
         let split = str.split("\n");
         let mut parser = GitMessageParser::default();
+
+        let mut file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .create(true)
+            .open("commits.json")
+            .unwrap();
+
+        let _ = writeln!(file, "[");
+
         for line in split {
-            parser.parse_log_by_line(line)
+            parser.parse_log_by_line(line, &mut file)
         }
 
-        parser.commits
+        let _ = writeln!(file, "]");
     }
 
-    pub fn parse_log_by_line(&mut self, text: &str) {
+    pub fn parse_log_by_line(&mut self, text: &str, file: &mut File) {
         // COMMIT_ID -> CHANGES -> CHANGE_MODEL -> Push to Commits
         if let Some(captures) = COMMIT_INFO.captures(text) {
             self.current_commit = GitMessageParser::create_commit(&captures)
@@ -64,19 +76,37 @@ impl GitMessageParser {
         } else if let Some(caps) = CHANGEMODEL.captures(text) {
             self.update_change_mode(caps)
         } else if self.current_commit.commit_id != "" {
-            self.push_to_commits();
+            self.push_to_commits(file);
         }
     }
 
-    fn push_to_commits(&mut self) {
+    fn push_to_commits(&mut self, file: &mut File) {
         for (_filename, change) in &self.current_file_change_map {
             self.current_file_change.push(change.clone());
         }
 
         self.current_commit.changes = self.current_file_change.clone();
-        self.commits.push(self.current_commit.clone());
 
         self.current_file_change_map.clear();
+        if self.count == 1 {
+            self.write_to_file_first(self.current_commit.clone(), file);
+        } else {
+            self.write_to_file(self.current_commit.clone(), file);
+        }
+        self.count = self.count + 1 ;
+    }
+
+    fn write_to_file_first(&self, commit: CocoCommit, file: &mut File) {
+        let result = serde_json::to_string(&commit).unwrap();
+        if let Err(e) = writeln!(file, "{}", format!("{}", result)) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
+    }
+    fn write_to_file(&self, commit: CocoCommit, file: &mut File) {
+        let result = serde_json::to_string(&commit).unwrap();
+        if let Err(e) = writeln!(file, "{}", format!(",{}", result)) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
     }
 
     fn update_change_mode(&mut self, caps: Captures) {
