@@ -15,6 +15,7 @@ Architecture
 
 | Project Name     | Project Commits | Time   |
 |------------------|-----------------|--------|
+| Rust Regex       | 3127            | 3s    |
 | Lombok           | 3127            | 8s    |
 | Nginx            | 6805            | 32s    |
 | Redis            | 10009           | 67s    |
