@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use regex::{Captures, Regex};
+use rusqlite::{Connection, params};
+
 use crate::coco_commit::{CocoCommit, FileChange};
-use std::fs::{OpenOptions, File};
-use std::io::prelude::*;
 
 lazy_static! {
     static ref COMMIT_INFO: Regex = Regex::new(
@@ -27,7 +27,6 @@ lazy_static! {
 }
 
 pub struct GitMessageParser {
-    count: i32,
     current_commit: CocoCommit,
     current_file_change: Vec<FileChange>,
     current_file_change_map: HashMap<String, FileChange>,
@@ -36,7 +35,6 @@ pub struct GitMessageParser {
 impl Default for GitMessageParser {
     fn default() -> Self {
         GitMessageParser {
-            count: 1,
             current_commit: Default::default(),
             current_file_change: vec![],
             current_file_change_map: Default::default(),
@@ -49,23 +47,39 @@ impl GitMessageParser {
         let split = str.split("\n");
         let mut parser = GitMessageParser::default();
 
-        let mut file = OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("commits.json")
-            .unwrap();
+        let conn = Connection::open("coco_git.db").unwrap();
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS git_commit (
+                  commit_id       TEXT PRIMARY KEY,
+                  branch          TEXT,
+                  author          TEXT,
+                  committer       TEXT,
+                  date            INT,
+                  message         TEXT,
+                  parent_hashes   TEXT,
+                  tree_hash       TEXT
+                  )",
+            params![],
+        ).unwrap();
 
-        let _ = writeln!(file, "[");
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS file_changed (
+                  id              INTEGER PRIMARY KEY,
+                  commit_id       TEXT,
+                  added           INTEGER,
+                  deleted         INTEGER,
+                  file            TEXT,
+                  mode            TEXT
+                  )",
+            params![],
+        ).unwrap();
 
         for line in split {
-            parser.parse_log_by_line(line, &mut file)
+            parser.parse_log_by_line(line, &conn)
         }
-
-        let _ = writeln!(file, "]");
     }
 
-    pub fn parse_log_by_line(&mut self, text: &str, file: &mut File) {
+    pub fn parse_log_by_line(&mut self, text: &str, conn: &Connection) {
         // COMMIT_ID -> CHANGES -> CHANGE_MODEL -> Push to Commits
         if let Some(captures) = COMMIT_INFO.captures(text) {
             self.current_commit = GitMessageParser::create_commit(&captures)
@@ -76,11 +90,11 @@ impl GitMessageParser {
         } else if let Some(caps) = CHANGEMODEL.captures(text) {
             self.update_change_mode(caps)
         } else if self.current_commit.commit_id != "" {
-            self.push_to_commits(file);
+            self.push_to_commits(conn);
         }
     }
 
-    fn push_to_commits(&mut self, file: &mut File) {
+    fn push_to_commits(&mut self, conn: &Connection) {
         for (_filename, change) in &self.current_file_change_map {
             self.current_file_change.push(change.clone());
         }
@@ -88,24 +102,19 @@ impl GitMessageParser {
         self.current_commit.changes = self.current_file_change.clone();
 
         self.current_file_change_map.clear();
-        if self.count == 1 {
-            self.write_to_file_first(self.current_commit.clone(), file);
-        } else {
-            self.write_to_file(self.current_commit.clone(), file);
-        }
-        self.count = self.count + 1 ;
-    }
 
-    fn write_to_file_first(&self, commit: CocoCommit, file: &mut File) {
-        let result = serde_json::to_string(&commit).unwrap();
-        if let Err(e) = writeln!(file, "{}", format!("{}", result)) {
-            eprintln!("Couldn't write to file: {}", e);
-        }
-    }
-    fn write_to_file(&self, commit: CocoCommit, file: &mut File) {
-        let result = serde_json::to_string(&commit).unwrap();
-        if let Err(e) = writeln!(file, "{}", format!(",{}", result)) {
-            eprintln!("Couldn't write to file: {}", e);
+        let commit = &self.current_commit;
+        let parent_hashes = commit.parent_hashes.join(" ");
+        conn.execute(
+            "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
+        ).unwrap();
+
+        for change in &commit.changes {
+            conn.execute(
+                "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
+            ).unwrap();
         }
     }
 

@@ -11,7 +11,7 @@ Architecture
 
 ## Performance logs
 
-| Project Name  | Project Commits | JSON   | BinCode |  Others  |
+| Project Name  | Project Commits | JSON   | BinCode |  Direct SQLite  |
 |---------------|-----------------|--------|---------|----------|
-| https://github.com/nitayneeman/schematics-utilities | 129 | 441 ms |     |      |
+| https://github.com/nitayneeman/schematics-utilities | 129 | 441 ms |     |   165ms   |
 | 
