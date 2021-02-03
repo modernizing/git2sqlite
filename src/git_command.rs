@@ -35,8 +35,9 @@ pub fn get_commit_message(exec_path: Option<String>) -> String {
 
 #[cfg(test)]
 mod test {
-    use crate::infrastructure::git::git_command::get_commit_message;
+    use crate::git_command::get_commit_message;
 
+    #[ignore]
     #[test]
     fn should_get_commit_log() {
         let output = get_commit_message(None);

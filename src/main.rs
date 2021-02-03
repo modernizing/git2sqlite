@@ -26,14 +26,14 @@ pub fn analysis(local_path: &Path) {
 }
 
 fn main(){
-    process("/Users/fdhuang/clone/lalrpop");
+    process(".");
 }
 
 fn process(local: &str) {
     analysis(Path::new(local));
 
     let commits: Vec<CocoCommit> = vec![];
-    save_to_database(commits);
+    let _ = save_to_database(commits);
 }
 
 fn save_to_database(commits: Vec<CocoCommit>) -> Result<()>  {
@@ -83,3 +83,12 @@ fn save_to_database(commits: Vec<CocoCommit>) -> Result<()>  {
     Ok(())
 }
 
+#[cfg(test)]
+mod test {
+    use crate::process;
+
+    #[test]
+    pub fn should_process_local_code() {
+        process(".");
+    }
+}
