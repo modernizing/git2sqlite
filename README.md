@@ -19,7 +19,7 @@ Architecture
 
 | Project Name     | Project Commits | Time   | Times(ms)         |
 |------------------|-----------------|--------|-------------------|
-| Rust Regex       | 3127            | 3s     | 2919ms ~ 3012ms   |
+| Rust Regex       | 1078            | 3s     | 2919ms ~ 3012ms   |
 | Lombok           | 3127            | 8s     | 8096ms ~ 8616ms   |
 | Nginx            | 6805            | 32s    | 32468ms ~ 33967ms |
 | Redis            | 10009           | 67s    | 65328ms ~ 71616ms |
