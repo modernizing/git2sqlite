@@ -14,4 +14,10 @@ Architecture
 | Project Name  | Project Commits | JSON   | BinCode |  Direct SQLite  |
 |---------------|-----------------|--------|---------|----------|
 | https://github.com/nitayneeman/schematics-utilities | 129 | 441 ms |     |   165ms   |
-| 
+|
+
+
+License
+---
+
+@ 2020~2021 This code is distributed under the MIT license. See `LICENSE` in this directory.
