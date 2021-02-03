@@ -4,6 +4,7 @@ use regex::{Captures, Regex};
 use rusqlite::{Connection, params};
 
 use crate::coco_commit::{CocoCommit, FileChange};
+use crate::ConvertOptions;
 
 lazy_static! {
     static ref COMMIT_INFO: Regex = Regex::new(
@@ -43,7 +44,7 @@ impl Default for GitMessageParser {
 }
 
 impl GitMessageParser {
-    pub fn parse(str: &str) {
+    pub fn parse(str: &str, options: ConvertOptions) {
         let split = str.split("\n");
         let mut parser = GitMessageParser::default();
 
@@ -75,11 +76,11 @@ impl GitMessageParser {
         ).unwrap();
 
         for line in split {
-            parser.parse_log_by_line(line, &conn)
+            parser.parse_log_by_line(line, &conn, &options)
         }
     }
 
-    pub fn parse_log_by_line(&mut self, text: &str, conn: &Connection) {
+    pub fn parse_log_by_line(&mut self, text: &str, conn: &Connection, options: &ConvertOptions) {
         // COMMIT_ID -> CHANGES -> CHANGE_MODEL -> Push to Commits
         if let Some(captures) = COMMIT_INFO.captures(text) {
             self.current_commit = GitMessageParser::create_commit(&captures)
@@ -90,11 +91,11 @@ impl GitMessageParser {
         } else if let Some(caps) = CHANGEMODEL.captures(text) {
             self.update_change_mode(caps)
         } else if self.current_commit.commit_id != "" {
-            self.push_to_commits(conn);
+            self.push_to_commits(conn, options);
         }
     }
 
-    fn push_to_commits(&mut self, conn: &Connection) {
+    fn push_to_commits(&mut self, conn: &Connection, options: &ConvertOptions) {
         for (_filename, change) in &self.current_file_change_map {
             self.current_file_change.push(change.clone());
         }
@@ -110,11 +111,13 @@ impl GitMessageParser {
             params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
         ).unwrap();
 
-        for change in &commit.changes {
-            conn.execute(
-                "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
-                params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
-            ).unwrap();
+        if options.with_changes {
+            for change in &commit.changes {
+                conn.execute(
+                    "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
+                    params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
+                ).unwrap();
+            }
         }
     }
 

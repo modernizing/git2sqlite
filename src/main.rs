@@ -12,9 +12,21 @@ pub mod git_command;
 pub mod git_log_parser;
 pub mod coco_commit;
 
-pub fn analysis(local_path: &Path) {
+pub fn analysis(local_path: &Path, options: ConvertOptions) {
     let messages = get_commit_message(Some(format!("{}", local_path.display())));
-    GitMessageParser::parse(messages.as_str());
+    GitMessageParser::parse(messages.as_str(), options);
+}
+
+pub struct ConvertOptions {
+    pub with_changes: bool,
+}
+
+impl Default for ConvertOptions {
+    fn default() -> Self {
+        ConvertOptions {
+            with_changes: false
+        }
+    }
 }
 
 fn main() {
@@ -24,17 +36,24 @@ fn main() {
         path = args[1].as_str();
     }
 
+    let mut options = ConvertOptions::default();
+    if args.len() > 2 {
+        if args[2].as_str() == "with_changes" {
+            options.with_changes = true;
+        }
+    }
+
     let expand_path = shellexpand::tilde(path);
 
     let start = Instant::now();
     println!("start process: {}", expand_path);
-    process(&*expand_path);
+    process(&*expand_path, options);
 
     println!("finish process in {:?}s", start.elapsed().as_secs());
 }
 
-fn process(local: &str) {
-    analysis(Path::new(local));
+fn process(local: &str, options: ConvertOptions) {
+    analysis(Path::new(local), options);
 }
 
 #[cfg(test)]
