@@ -11,6 +11,7 @@ pub mod git_log_parser;
 pub mod coco_commit;
 
 use rusqlite::{params, Connection, Result};
+use crate::coco_commit::CocoCommit;
 
 #[derive(Debug)]
 struct Person {
@@ -24,52 +25,61 @@ pub fn analysis(local_path: &Path) {
     GitMessageParser::parse(messages.as_str());
 }
 
-fn main() -> Result<()> {
-    let path = Path::new(".");
-    analysis(path);
+fn main(){
+    process("/Users/fdhuang/clone/lalrpop");
+}
 
-    // let conn = Connection::open("coco_git.db")?;
-    // conn.execute(
-    //     "CREATE TABLE IF NOT EXISTS git_commit (
-    //               commit_id       TEXT PRIMARY KEY,
-    //               branch          TEXT,
-    //               author          TEXT,
-    //               committer       TEXT,
-    //               date            INT,
-    //               message         TEXT,
-    //               parent_hashes   TEXT,
-    //               tree_hash       TEXT
-    //               )",
-    //     params![],
-    // )?;
-    //
-    // conn.execute(
-    //     "CREATE TABLE IF NOT EXISTS file_changed (
-    //               id              INTEGER PRIMARY KEY,
-    //               commit_id       INTEGER,
-    //               added           INTEGER,
-    //               deleted         INTEGER,
-    //               file            TEXT,
-    //               mode            TEXT,
-    //               FOREIGN KEY (commit_id) REFERENCES git_commit
-    //               )",
-    //     params![],
-    // )?;
-    //
-    // for commit in commits {
-    //     let parent_hashes = commit.parent_hashes.join(" ");
-    //     conn.execute(
-    //         "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-    //         params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
-    //     )?;
-    //
-    //     for change in commit.changes {
-    //         conn.execute(
-    //             "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
-    //             params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
-    //         )?;
-    //     }
-    // }
+fn process(local: &str) {
+    analysis(Path::new(local));
+
+    let commits: Vec<CocoCommit> = vec![];
+    save_to_database(commits);
+}
+
+fn save_to_database(commits: Vec<CocoCommit>) -> Result<()>  {
+    let conn = Connection::open("coco_git.db")?;
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS git_commit (
+                  commit_id       TEXT PRIMARY KEY,
+                  branch          TEXT,
+                  author          TEXT,
+                  committer       TEXT,
+                  date            INT,
+                  message         TEXT,
+                  parent_hashes   TEXT,
+                  tree_hash       TEXT
+                  )",
+        params![],
+    )?;
+
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS file_changed (
+                  id              INTEGER PRIMARY KEY,
+                  commit_id       INTEGER,
+                  added           INTEGER,
+                  deleted         INTEGER,
+                  file            TEXT,
+                  mode            TEXT,
+                  FOREIGN KEY (commit_id) REFERENCES git_commit
+                  )",
+        params![],
+    )?;
+
+    for commit in commits {
+        let parent_hashes = commit.parent_hashes.join(" ");
+        conn.execute(
+            "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
+        )?;
+
+        for change in commit.changes {
+            conn.execute(
+                "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
+            )?;
+        }
+    }
 
     Ok(())
 }
+
