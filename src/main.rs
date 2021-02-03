@@ -5,6 +5,7 @@ use std::path::Path;
 
 use crate::git_command::get_commit_message;
 use crate::git_log_parser::GitMessageParser;
+use std::env;
 
 pub mod git_command;
 pub mod git_log_parser;
@@ -16,7 +17,8 @@ pub fn analysis(local_path: &Path) {
 }
 
 fn main(){
-    process(".");
+    let args: Vec<String> = env::args().collect();
+    process(args[0].as_str());
 }
 
 fn process(local: &str) {
@@ -36,6 +38,6 @@ mod test {
     #[test]
     #[ignore]
     pub fn should_parse_coco() {
-        process("/Users/fdhuang/clone/schematics-utilities");
+        process("/Users/fdhuang/clone/mir");
     }
 }
