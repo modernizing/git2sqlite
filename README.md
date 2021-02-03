@@ -13,15 +13,19 @@ Architecture
 
 ### Without Changes
 
-| Project Name     | Project Commits | Time   |
-|------------------|-----------------|--------|
-| Rust Regex       | 3127            | 3s    |
-| Lombok           | 3127            | 8s    |
-| Nginx            | 6805            | 32s    |
-| Redis            | 10009           | 67s    |
-| Spring Framework | 22133           | 706s   |
-| Graal            | 49026           | 1425s  |
-| Gradle           | 78711           | 4130s  |
+- Machine: MacBook Pro (15-inch, 2018)
+- Processor: 2.2 GHz 6-Core Intel Core i7
+- Memory: 16 GB 2400 MHz DDR4
+
+| Project Name     | Project Commits | Time   | Times(ms)         |
+|------------------|-----------------|--------|-------------------|
+| Rust Regex       | 3127            | 3s     | 2919ms ~ 3012ms   |
+| Lombok           | 3127            | 8s     | 8096ms ~ 8616ms   |
+| Nginx            | 6805            | 32s    | 32468ms ~ 33967ms |
+| Redis            | 10009           | 67s    | 65328ms ~ 71616ms |
+| Spring Framework | 22133           | 706s   |                   |
+| Graal            | 49026           | 1425s  |                   |
+| Gradle           | 78711           | 4130s  |                   |
 
 
 License

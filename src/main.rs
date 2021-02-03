@@ -49,7 +49,7 @@ fn main() {
     println!("start process: {}", expand_path);
     process(&*expand_path, options);
 
-    println!("finish process in {:?}ms", start.elapsed().as_micros());
+    println!("finish process in {:?}ms", start.elapsed().as_millis());
 }
 
 fn process(local: &str, options: ConvertOptions) {
