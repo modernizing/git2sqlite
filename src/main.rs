@@ -29,7 +29,7 @@ pub fn analysis(local_path: &Path) {
 }
 
 fn main(){
-    process(".");
+    process("/Users/fdhuang/consultant/devops/cocoj");
 }
 
 fn process(local: &str) {
@@ -82,7 +82,7 @@ fn save_to_database(commits: Vec<CocoCommit>)  {
     conn.execute(
         "CREATE TABLE IF NOT EXISTS file_changed (
                   id              INTEGER PRIMARY KEY,
-                  commit_id       INTEGER,
+                  commit_id       TEXT,
                   added           INTEGER,
                   deleted         INTEGER,
                   file            TEXT,
