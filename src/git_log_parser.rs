@@ -63,7 +63,7 @@ impl GitMessageParser {
             self.current_file_change_map.insert(filename, file_change);
         } else if let Some(caps) = CHANGEMODEL.captures(text) {
             self.update_change_mode(caps)
-        } else if self.current_commit.commit_sha != "" {
+        } else if self.current_commit.commit_id != "" {
             self.push_to_commits();
         }
     }
@@ -140,7 +140,7 @@ impl GitMessageParser {
         let date = date_str.parse::<i64>().unwrap();
         CocoCommit {
             branch: branch.to_string(),
-            commit_sha: commit_id.to_string(),
+            commit_id: commit_id.to_string(),
             author: author.to_string(),
             committer: "".to_string(),
             date,
@@ -167,7 +167,7 @@ mod test {
 
         let commits = GitMessageParser::parse(input);
         assert_eq!(1, commits.len());
-        assert_eq!("828fe39523", commits[0].commit_sha);
+        assert_eq!("828fe39523", commits[0].commit_id);
         assert_eq!("Phodal Huang", commits[0].author);
         assert_eq!(1606612935, commits[0].date);
         assert_eq!(

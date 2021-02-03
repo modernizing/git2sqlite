@@ -28,16 +28,14 @@ pub fn analysis(local_path: &Path) -> Vec<CocoCommit> {
 }
 
 fn main() -> Result<()> {
-    // let path = Path::new(".");
-    // let results = analysis(path);
-    // println!("{:?}", results);
+    let path = Path::new(".");
+    let commits = analysis(path);
 
     let conn = Connection::open("coco_git.db")?;
     conn.execute(
         "CREATE TABLE IF NOT EXISTS git_commit (
-                  id              INTEGER PRIMARY KEY,
+                  commit_id       TEXT PRIMARY KEY,
                   branch          TEXT,
-                  commit_id       TEXT,
                   author          TEXT,
                   committer       TEXT,
                   date            INT,
@@ -61,27 +59,20 @@ fn main() -> Result<()> {
         params![],
     )?;
 
-    // let me = Person {
-    //     id: 0,
-    //     name: "Steven".to_string(),
-    //     data: None,
-    // };
-    // conn.execute(
-    //     "INSERT INTO person (name, data) VALUES (?1, ?2)",
-    //     params![me.name, me.data],
-    // )?;
-    //
-    // let mut stmt = conn.prepare("SELECT id, name, data FROM person")?;
-    // let person_iter = stmt.query_map(params![], |row| {
-    //     Ok(Person {
-    //         id: row.get(0)?,
-    //         name: row.get(1)?,
-    //         data: row.get(2)?,
-    //     })
-    // })?;
-    //
-    // for person in person_iter {
-    //     println!("Found person {:?}", person.unwrap());
-    // }
+    for commit in commits {
+        let parent_hashes = commit.parent_hashes.join(" ");
+        conn.execute(
+            "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
+        )?;
+
+        for change in commit.changes {
+            conn.execute(
+                "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
+                params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
+            )?;
+        }
+    }
+
     Ok(())
 }
