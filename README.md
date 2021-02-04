@@ -27,6 +27,15 @@ Architecture
 | Graal            | 49026           | 1425s  |                   |
 | Gradle           | 78711           | 4130s  |                   |
 
+### With Changes in Serial
+
+111063ms
+
+| Project Name     | Project Commits | Times(ms)         |
+|------------------|-----------------|-------------------|
+| Coco             | 405             | 111063ms          |
+|  Rust Regex      | 1078            | > 6000000ms       |
+
 ## Todo
 
  - 获取所有的提交 id (Change to list all commits)
