@@ -58,7 +58,8 @@ impl GitMessageParser {
                   date            INT,
                   message         TEXT,
                   parent_hashes   TEXT,
-                  tree_hash       TEXT
+                  tree_hash       TEXT,
+                  changes         TEXT
                   )",
             params![],
         ).unwrap();
@@ -106,18 +107,18 @@ impl GitMessageParser {
 
         let commit = &self.current_commit;
         let parent_hashes = commit.parent_hashes.join(" ");
-        conn.execute(
-            "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-            params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
-        ).unwrap();
+        let changes = serde_json::to_string_pretty(&commit.changes).unwrap();
 
         if options.with_changes {
-            for change in &commit.changes {
-                conn.execute(
-                    "INSERT INTO file_changed (commit_id, added, deleted, file, mode) VALUES (?1, ?2, ?3, ?4, ?5)",
-                    params![commit.commit_id, change.added, change.deleted, change.file, change.mode],
-                ).unwrap();
-            }
+            conn.execute(
+                "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash, changes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash, changes],
+            ).unwrap();
+        } else {
+            conn.execute(
+                "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
+            ).unwrap();
         }
     }
 

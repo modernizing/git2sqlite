@@ -36,6 +36,15 @@ Architecture
 | Coco             | 405             | 111063ms          |
 |  Rust Regex      | 1078            | > 6000000ms       |
 
+### With Changes in JSON
+
+| Project Name     | Project Commits | Time   | Times(ms)         | Size      |
+|------------------|-----------------|--------|-------------------|-----------|
+| Rust Regex       | 1078            | 3s     | 6771ms            |           |
+| Lombok           | 3127            | 8s     | 25541ms           |           |
+| Nginx            | 6805            | 32s    | 207398ms          | 11G       |
+| Redis            | 10009           | 67s    | 248299ms          |           |
+
 ## Todo
 
  - 获取所有的提交 id (Change to list all commits)
