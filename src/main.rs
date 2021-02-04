@@ -5,8 +5,6 @@ use std::env;
 use std::path::Path;
 use std::time::Instant;
 
-use clap::{Clap, App};
-
 use cli_option::ConvertOptions;
 
 use crate::git_command::get_commit_message;
