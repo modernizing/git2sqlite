@@ -4,7 +4,7 @@ use regex::{Captures, Regex};
 use rusqlite::{Connection, params};
 
 use crate::coco_commit::{CocoCommit, FileChange};
-use crate::ConvertOptions;
+use crate::cli_option::ConvertOptions;
 
 lazy_static! {
     static ref COMMIT_INFO: Regex = Regex::new(

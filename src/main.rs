@@ -1,33 +1,25 @@
 #[macro_use]
 extern crate lazy_static;
 
+use std::env;
 use std::path::Path;
+use std::time::Instant;
+
+use clap::{Clap, App};
+
+use cli_option::ConvertOptions;
 
 use crate::git_command::get_commit_message;
 use crate::git_log_parser::GitMessageParser;
-use std::env;
-use std::time::{Instant};
 
 pub mod git_command;
 pub mod git_log_parser;
 pub mod coco_commit;
+pub mod cli_option;
 
 pub fn analysis(local_path: &Path, options: ConvertOptions) {
     let messages = get_commit_message(Some(format!("{}", local_path.display())));
     GitMessageParser::parse(messages.as_str(), options);
-}
-
-#[derive(Debug, Clone)]
-pub struct ConvertOptions {
-    pub with_changes: bool,
-}
-
-impl Default for ConvertOptions {
-    fn default() -> Self {
-        ConvertOptions {
-            with_changes: false
-        }
-    }
 }
 
 fn main() {
