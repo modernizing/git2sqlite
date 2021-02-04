@@ -17,6 +17,7 @@ pub fn analysis(local_path: &Path, options: ConvertOptions) {
     GitMessageParser::parse(messages.as_str(), options);
 }
 
+#[derive(Debug, Clone)]
 pub struct ConvertOptions {
     pub with_changes: bool,
 }
@@ -38,7 +39,7 @@ fn main() {
 
     let mut options = ConvertOptions::default();
     if args.len() > 2 {
-        if args[2].as_str() == "with_changes" {
+        if args[2].as_str() == "--with-changes" {
             options.with_changes = true;
         }
     }
@@ -46,7 +47,7 @@ fn main() {
     let expand_path = shellexpand::tilde(path);
 
     let start = Instant::now();
-    println!("start process: {}", expand_path);
+    println!("start process: {}, options: {:?}", expand_path, options);
     process(&*expand_path, options);
 
     println!("finish process in {:?}ms", start.elapsed().as_millis());
