@@ -54,6 +54,13 @@ Or
 
  - Changes of half year
 
+## Solution Strategy
+
+1. summary all commits
+2. summary all changes, count changes size
+3. fetch recently 10000 changes ? or half years change by commit_id?
+4. count relations?
+
 License
 ---
 
