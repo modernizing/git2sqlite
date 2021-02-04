@@ -29,11 +29,12 @@ Architecture
 
 ## Todo
 
-Change to list all commits, and run git to split commits.
+ - 获取所有的提交 id (Change to list all commits)
+ - 将提交 ID 分段，获取不同的 ID (and run git to split commits)
 
- - 获取所有的提交 id
- - 将提交 ID 分段，获取不同的 ID
+Or
 
+ - Changes of half year
 
 License
 ---
