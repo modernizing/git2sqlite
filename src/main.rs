@@ -14,6 +14,7 @@ pub mod git_command;
 pub mod git_log_parser;
 pub mod coco_commit;
 pub mod cli_option;
+pub mod database;
 
 pub fn analysis(local_path: &Path, options: ConvertOptions) {
     let messages = get_commit_message(Some(format!("{}", local_path.display())));
