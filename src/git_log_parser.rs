@@ -59,7 +59,9 @@ impl GitMessageParser {
                   message         TEXT,
                   parent_hashes   TEXT,
                   tree_hash       TEXT,
-                  changes         TEXT
+                  changes         TEXT,
+                  added           INT,
+                  deleted         INT
                   )",
             params![],
         ).unwrap();
@@ -97,11 +99,19 @@ impl GitMessageParser {
     }
 
     fn push_to_commits(&mut self, conn: &Connection, options: &ConvertOptions) {
+        self.current_file_change = vec![];
         for (_filename, change) in &self.current_file_change_map {
             self.current_file_change.push(change.clone());
         }
 
         self.current_commit.changes = self.current_file_change.clone();
+
+        self.current_commit.added = 0;
+        self.current_commit.deleted = 0;
+        for change in &self.current_commit.changes {
+            self.current_commit.added = self.current_commit.added + change.added;
+            self.current_commit.deleted = self.current_commit.deleted + change.deleted;
+        }
 
         self.current_file_change_map.clear();
 
@@ -116,8 +126,8 @@ impl GitMessageParser {
             ).unwrap();
         } else {
             conn.execute(
-                "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash],
+                "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash, added, deleted) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+                params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash, commit.added,commit.deleted],
             ).unwrap();
         }
     }
@@ -191,6 +201,8 @@ impl GitMessageParser {
             changes: vec![],
             parent_hashes,
             tree_hash,
+            added: 0,
+            deleted: 0
         }
     }
 }

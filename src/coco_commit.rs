@@ -11,6 +11,8 @@ pub struct CocoCommit {
     pub changes: Vec<FileChange>,
     pub parent_hashes: Vec<String>,
     pub tree_hash: String,
+    pub added: i32,
+    pub deleted: i32,
 }
 
 impl Default for CocoCommit {
@@ -25,6 +27,8 @@ impl Default for CocoCommit {
             changes: vec![],
             parent_hashes: vec![],
             tree_hash: "".to_string(),
+            added: 0,
+            deleted: 0,
         }
     }
 }

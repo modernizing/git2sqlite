@@ -50,16 +50,17 @@ fn process(local: &str, options: ConvertOptions) {
 #[cfg(test)]
 mod test {
     use crate::process;
+    use crate::cli_option::ConvertOptions;
 
     #[ignore]
     #[test]
     pub fn should_process_local_code() {
-        process(".");
+        process(".", ConvertOptions::default());
     }
 
     #[test]
     #[ignore]
     pub fn should_parse_coco() {
-        process("/Users/fdhuang/clone/mir");
+        process("/Users/fdhuang/clone/mir", ConvertOptions::default());
     }
 }
