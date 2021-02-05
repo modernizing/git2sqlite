@@ -18,7 +18,7 @@ lazy_static! {
     )
     .unwrap();
     static ref CHANGES: Regex =
-        Regex::new(r"(?P<deleted>[\d-]+)[\t\s]+(?P<added>[\d-]+)[\t\s]+(?P<filename>.*)").unwrap();
+        Regex::new(r"(?P<added>[\d-]+)[\t\s]+(?P<deleted>[\d-]+)[\t\s]+(?P<filename>.*)").unwrap();
     static ref CHANGEMODEL: Regex =
         Regex::new(r"\s(\w{1,6})\s(mode 100(\d){3})?\s?(.*)(\s\(\d{2}%\))?").unwrap();
 
