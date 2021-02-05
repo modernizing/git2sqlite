@@ -13,6 +13,7 @@ pub struct CocoCommit {
     pub tree_hash: String,
     pub added: i32,
     pub deleted: i32,
+    pub files: Vec<String>
 }
 
 impl Default for CocoCommit {
@@ -29,6 +30,7 @@ impl Default for CocoCommit {
             tree_hash: "".to_string(),
             added: 0,
             deleted: 0,
+            files: vec![]
         }
     }
 }

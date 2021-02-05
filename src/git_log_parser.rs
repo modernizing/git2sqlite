@@ -61,7 +61,8 @@ impl GitMessageParser {
                   tree_hash       TEXT,
                   changes         TEXT,
                   added           INT,
-                  deleted         INT
+                  deleted         INT,
+                  files           TEXT
                   )",
             params![],
         ).unwrap();
@@ -111,6 +112,7 @@ impl GitMessageParser {
         for change in &self.current_commit.changes {
             self.current_commit.added = self.current_commit.added + change.added;
             self.current_commit.deleted = self.current_commit.deleted + change.deleted;
+            self.current_commit.files.push(change.file.clone());
         }
 
         self.current_file_change_map.clear();
@@ -126,8 +128,8 @@ impl GitMessageParser {
             ).unwrap();
         } else {
             conn.execute(
-                "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash, added, deleted) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
-                params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash, commit.added,commit.deleted],
+                "INSERT INTO git_commit (commit_id, branch, author, date, message, parent_hashes, tree_hash, added, deleted, files) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+                params![commit.commit_id, commit.branch, commit.author, commit.date, commit.message, parent_hashes, commit.tree_hash, commit.added,commit.deleted, commit.files.join(",")],
             ).unwrap();
         }
     }
@@ -202,7 +204,8 @@ impl GitMessageParser {
             parent_hashes,
             tree_hash,
             added: 0,
-            deleted: 0
+            deleted: 0,
+            files: vec![]
         }
     }
 }
